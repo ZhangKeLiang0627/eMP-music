@@ -87,9 +87,18 @@ namespace Page
                 lv_obj_t *cont;
             } listCont;
 
+            struct
+            {
+                lv_obj_t *cont;
+                lv_obj_t *cancelBtn; // to cancel this app
+
+                lv_obj_t *musicNameLabel; // to show the music name which is playing
+            } topCont;
+
             lv_anim_timeline_t *anim_timeline;
             lv_anim_timeline_t *anim_timelineClick;
             lv_anim_timeline_t *anim_timelineVolume;
+            lv_anim_timeline_t *anim_timelineTop;
         } ui;
 
         void create(Operations &opts);
@@ -97,6 +106,7 @@ namespace Page
         void appearAnimStart(bool reverse = false);
         void appearAnimClick(bool reverse = false);
         void appearAnimVolume(bool reverse = false);
+        void appearAnimTop(bool reverse = false);
 
         void addMusicList(const char *name);
         void setPlayProgress(int cur, int total);
@@ -114,6 +124,7 @@ namespace Page
         void rollerContCreate(lv_obj_t *obj);
         void volumeSliderContCreate(lv_obj_t *obj);
         void funcContCreate(lv_obj_t *obj);
+        void topContCreate(lv_obj_t *obj);
         void fontCreate(void);
 
         static void onEvent(lv_event_t *event);
