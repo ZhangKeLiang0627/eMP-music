@@ -441,7 +441,10 @@ void View::addMusicList(const char *name)
 void View::loadLyric(const char *lyric)
 {
     if (lyric != nullptr)
+    {
         lv_roller_set_options(ui.lyricRoller, lyric, LV_ROLLER_MODE_NORMAL);
+        lv_roller_set_selected(ui.lyricRoller, 0, LV_ANIM_OFF);
+    }
     else
         lv_roller_set_options(ui.lyricRoller, "did not find lyric", LV_ROLLER_MODE_NORMAL);
 }

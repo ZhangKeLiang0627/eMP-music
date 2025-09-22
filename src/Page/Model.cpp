@@ -91,6 +91,10 @@ void *Model::threadProcHandler(void *arg)
             if (model->_musicObj != nullptr)
             {
                 int id = lyric_getid_by_time(model->_musicLyric, model->_musicObj->getCurTime() * 1000);
+                
+                // 修复歌词滚动问题
+                if (model->_musicObj->getCurTime() * 1000 < 1 * 1000)
+                    id = 0;
 
                 model->_view.setLyricId(id, true);
             }
