@@ -349,6 +349,11 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_opa(cont, LV_OPA_COVER, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
     lv_obj_set_style_width(cont, 5, LV_PART_SCROLLBAR);
     lv_obj_set_style_radius(cont, 255, LV_PART_SCROLLBAR);
+
+    lv_obj_set_style_pad_top(cont, 20, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_right(cont, 5, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_bottom(cont, 20, LV_PART_SCROLLBAR);
+
     ui.listCont.cont = cont;
 }
 
@@ -591,7 +596,7 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
     lv_obj_set_style_shadow_color(obj, lv_color_hex(0xd6dff5), 0);
 
     lv_obj_t *img = lv_img_create(obj);
-    lv_img_set_src(img, LV_SYMBOL_VIDEO);
+    lv_img_set_src(img, LV_SYMBOL_AUDIO);
     lv_obj_align(img, LV_ALIGN_LEFT_MID, 10, 0);
 
     lv_obj_t *label = lv_label_create(obj);
