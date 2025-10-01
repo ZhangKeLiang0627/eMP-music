@@ -1,6 +1,11 @@
 #include "HAL.h"
 #include "sound.h"
 
+#ifdef __x86_64__
+#include "../libs/lv_drivers/sdl/sdl.h"
+#include "../libs/lv_drivers/indev/mouse.h"
+#endif
+
 /* File system funtion */
 static void *fs_open(lv_fs_drv_t *drv, const char *path, lv_fs_mode_t mode);
 static lv_fs_res_t fs_close(lv_fs_drv_t *drv, void *file_p);
@@ -21,11 +26,16 @@ uint32_t custom_tick_get(void);
  */
 void HAL::Init(void)
 {
-    // LittlevGL init
+    /*LittlevGL init*/
     lv_init();
-    uint32_t rotated = LV_DISP_ROT_NONE;
+    // lv_png_init();
 
+#ifdef __aarch64__
+// 64位ARM架构 / AArch64
+#elif defined(__arm__)
+    // 32位ARM架构 / AArch32
     // Linux frame buffer device init
+    uint32_t rotated = LV_DISP_ROT_NONE;
     sunxifb_init(rotated);
 
     // A buffer for LittlevGL to draw the screen's content
@@ -38,7 +48,7 @@ void HAL::Init(void)
     if (buf == NULL)
     {
         sunxifb_exit();
-        printf("malloc draw buffer fail\n");
+        log_error("malloc draw buffer fail\n");
         return;
     }
 
@@ -69,6 +79,37 @@ void HAL::Init(void)
     // Register the driver in LVGL and save the created input device object
     lv_indev_t *evdev_indev = lv_indev_drv_register(&indev_drv);
 
+#elif defined(__x86_64__)
+// x86_64架构 / 电脑
+#define DISP_BUF_SIZE (480 * 480)
+    // sdl_init
+    sdl_init();
+
+    /*A small buffer for LittlevGL to draw the screen's content*/
+    static lv_color_t buf[DISP_BUF_SIZE];
+
+    /*Initialize a descriptor for the buffer*/
+    static lv_disp_draw_buf_t disp_buf;
+    lv_disp_draw_buf_init(&disp_buf, buf, NULL, DISP_BUF_SIZE);
+
+    /*Initialize and register a display driver*/
+    static lv_disp_drv_t disp_drv;
+    lv_disp_drv_init(&disp_drv);
+    disp_drv.draw_buf = &disp_buf;
+    disp_drv.flush_cb = sdl_display_flush;
+    disp_drv.hor_res = SDL_HOR_RES;
+    disp_drv.ver_res = SDL_VER_RES;
+    lv_disp_drv_register(&disp_drv);
+
+    mouse_init();
+    static lv_indev_drv_t indev_drv_1;
+    lv_indev_drv_init(&indev_drv_1); /*Basic initialization*/
+    indev_drv_1.type = LV_INDEV_TYPE_POINTER;
+    /*This function will be called periodically (by the library) to get the mouse position and state*/
+    indev_drv_1.read_cb = mouse_read;
+    lv_indev_t *mouse_indev = lv_indev_drv_register(&indev_drv_1);
+#endif
+
     // file system initialization
     static lv_fs_drv_t fs_drv;
     lv_fs_drv_init(&fs_drv);
@@ -86,8 +127,8 @@ void HAL::Init(void)
     install_signal_handler();
 
     // sound Init
-    snd_pcm_init();
-    snd_mixer_init();
+    // snd_pcm_init();
+    // snd_mixer_init();
 }
 
 /**
@@ -112,11 +153,19 @@ void HAL::LVGL_Proc(void)
  */
 void signalExitCallback(int signal)
 {
+    // log_warn("[Sys] Got signal %d, exiting ...\n", signal);
     printf("[Sys] Got signal %d, exiting ...\n", signal);
 
+#ifdef __aarch64__
+// 64位ARM架构 / AArch64
+#elif defined(__arm__)
+// 32位ARM架构 / AArch64
     sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, (char *)"lv_examples");
     sunxifb_exit();
     lv_deinit();
+#elif defined(__x86_64__)
+// x86 / 电脑
+#endif
 
     exit(0);
 }

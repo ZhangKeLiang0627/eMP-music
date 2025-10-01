@@ -20,14 +20,14 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     Operations uiOpts = {0};
 
     uiOpts.exitCb = exitCb;
-    uiOpts.getStateCb = std::bind(&Model::getState, this);
-    uiOpts.pauseCb = std::bind(&Model::pause, this);
-    uiOpts.playCb = std::bind(&Model::play, this, std::placeholders::_1, std::placeholders::_2);
-    uiOpts.setCurCb = std::bind(&Model::setCur, this, std::placeholders::_1);
-    uiOpts.setVolumeCb = snd_set_volume;
-    uiOpts.getVolumeCb = snd_get_volume;
-    uiOpts.getModeCb = std::bind(&Model::getMode, this);
-    uiOpts.setModeCb = std::bind(&Model::setMode, this, std::placeholders::_1);
+    // uiOpts.getStateCb = std::bind(&Model::getState, this);
+    // uiOpts.pauseCb = std::bind(&Model::pause, this);
+    // uiOpts.playCb = std::bind(&Model::play, this, std::placeholders::_1, std::placeholders::_2);
+    // uiOpts.setCurCb = std::bind(&Model::setCur, this, std::placeholders::_1);
+    // uiOpts.setVolumeCb = snd_set_volume;
+    // uiOpts.getVolumeCb = snd_get_volume;
+    // uiOpts.getModeCb = std::bind(&Model::getMode, this);
+    // uiOpts.setModeCb = std::bind(&Model::setMode, this, std::placeholders::_1);
 
     _view.create(uiOpts);
 
@@ -65,7 +65,7 @@ void Model::update(void)
 {
     if (_musicObj != nullptr)
     {
-        _view.setPlayProgress(_musicObj->getCurTime(), _musicObj->getTotalTime());
+        // _view.setPlayProgress(_musicObj->getCurTime(), _musicObj->getTotalTime());
     }
 }
 
@@ -80,31 +80,31 @@ void *Model::threadProcHandler(void *arg)
 
     int tick = 0;
 
-    model->_musicNum = model->searchMusic(MUSIC_DIR);
+    // model->_musicNum = model->searchMusic(MUSIC_DIR);
 
     while (!model->_threadExitFlag)
     {
         pthread_mutex_lock(model->_mutex);
 
-        if (model->_musicLyric != nullptr)
-        {
-            if (model->_musicObj != nullptr)
-            {
-                int id = lyric_getid_by_time(model->_musicLyric, model->_musicObj->getCurTime() * 1000);
+        // if (model->_musicLyric != nullptr)
+        // {
+        //     if (model->_musicObj != nullptr)
+        //     {
+        //         int id = lyric_getid_by_time(model->_musicLyric, model->_musicObj->getCurTime() * 1000);
                 
-                // 修复歌词滚动问题
-                if (model->_musicObj->getCurTime() * 1000 < 1 * 1000)
-                    id = 0;
+        //         // 修复歌词滚动问题
+        //         if (model->_musicObj->getCurTime() * 1000 < 1 * 1000)
+        //             id = 0;
 
-                model->_view.setLyricId(id, true);
-            }
-        }
+        //         model->_view.setLyricId(id, true);
+        //     }
+        // }
 
-        // 播放完后继续播放下一首歌
-        if (model->_musicObj != nullptr && model->_musicObj->isOver() == true)
-        {
-            model->changeMusic();
-        }
+        // // 播放完后继续播放下一首歌
+        // if (model->_musicObj != nullptr && model->_musicObj->isOver() == true)
+        // {
+        //     model->changeMusic();
+        // }
 
         pthread_mutex_unlock(model->_mutex);
 
